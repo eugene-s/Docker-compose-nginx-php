@@ -1,5 +1,5 @@
 .idea
 
-/data/mysql
-/log/nginx
+data/mysql/*
+log/nginx/*
 
