@@ -1,0 +1,4 @@
+xdebug.remote_enable = Off
+xdebug.remote_autostart = Off
+xdebug.remote_connect_back = Off
+xdebug.remote_host = devhost

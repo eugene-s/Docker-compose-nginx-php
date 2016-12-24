@@ -3,34 +3,29 @@ version: "2"
 services:
   mysql:
     image: mysql:5.7
+    restart: always
     volumes:
-      - /var/lib/mysql
+      - mysql-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASS}"
       MYSQL_USER: "${DB_USERNAME}"
       MYSQL_PASSWORD: "${DB_PASSWORD}"
       MYSQL_DATABASE: "${DB_DATABASE}"
-    ports:
-      - "${SERVER_HOST}:3306:3306"
 
   php-fpm:
-    build: ./docker/images/php-dev/
-    environment:
-      PHP_IDE_CONFIG: "serverName=${SERVER_HOST}"
+    build: .
+    restart: always
     volumes:
-      - ./:/var/www/
-      - ./docker/conf/php-fpm/php-dev.conf:/usr/local/etc/php-fpm.d/php-dev.conf
+      - /var/www/
       - ./docker/conf/php/php.ini:/usr/local/etc/php/php.ini
-      - ./docker/conf/php/php.dev.ini:/usr/local/etc/php/conf.d/dev.ini
-    extra_hosts:
-      - "devhost:${DOCKER_IP}"
     depends_on:
       - mysql
-    ports:
-      - "${SERVER_HOST}:8000:8000"
+    links:
+      - mysql
 
   nginx:
     image: nginx:alpine
+    restart: always
     volumes_from:
       - php-fpm
     volumes:
@@ -38,5 +33,11 @@ services:
       - ./docker/conf/nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - php-fpm
+    links:
+      - php-fpm
     ports:
-      - "${SERVER_HOST}:80:80"
+      - "80:80"
+
+volumes:
+  mysql-data:
+    driver: local
